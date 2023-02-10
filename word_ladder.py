@@ -1,7 +1,15 @@
 #!/bin/python3
 
 
+def get_text(filename):  # used to get access to dictionary of 5 letter words
+    f = open(filename, encoding='latin1')
+    text = f.read()
+    f.close()
+    return text
+
+
 def word_ladder(start_word, end_word, dictionary_file='words5.dict'):
+
     '''
     Returns a list satisfying the following properties:
 
@@ -16,12 +24,14 @@ def word_ladder(start_word, end_word, dictionary_file='words5.dict'):
     ```
     may give the output
     ```
-    ['stone', 'shone', 'phone', 'phony', 'peony', 'penny', 'benny', 'bonny', 'boney', 'money']
+    ['stone', 'shone', 'phone', 'phony', 'peony',
+    'penny', 'benny', 'bonny', 'boney', 'money']
     ```
     but the possible outputs are not unique,
     so you may also get the output
     ```
-    ['stone', 'shone', 'shote', 'shots', 'soots', 'hoots', 'hooty', 'hooey', 'honey', 'money']
+    ['stone', 'shone', 'shote', 'shots', 'soots',
+    'hoots', 'hooty', 'hooey', 'honey', 'money']
     ```
     (We cannot use doctests here because the outputs are not unique.)
 
@@ -29,8 +39,38 @@ def word_ladder(start_word, end_word, dictionary_file='words5.dict'):
     the function returns `None`.
     '''
 
+    from collections import deque
+    import copy
+    dictionary_file = get_text("words5.dict")
+    dictionary = dictionary_file.split("\n")
+    stack = []
+    stack.append(start_word)
+    queue = deque()
+    queue.append(stack)
+
+    if start_word == end_word:
+        return queue
+    if len(end_word) > len(start_word):
+        return None
+
+    while len(queue) != 0:
+        dq = queue.popleft()
+        dic_copy = copy.copy(dictionary)
+        for word in dic_copy:
+            if _adjacent(word, dq[-1]):
+                if word == end_word:
+                    dq.append(word)
+                    return dq
+                else:
+                    new_stack = copy.copy(dq)
+                    new_stack.append(word)
+                    queue.append(new_stack)
+                    dictionary.remove(word)
+    return None
+
 
 def verify_word_ladder(ladder):
+    
     '''
     Returns True if each entry of the input list is adjacent to its neighbors;
     otherwise returns False.
@@ -40,9 +80,21 @@ def verify_word_ladder(ladder):
     >>> verify_word_ladder(['stone', 'shone', 'phony'])
     False
     '''
+    if ladder is None:
+        return False
+    if ladder == []:
+        return False
+
+    for i in range(len(ladder) - 1):
+        if _adjacent(ladder[i], ladder[i + 1]):
+            continue
+        else:
+            return False
+    return True
 
 
 def _adjacent(word1, word2):
+
     '''
     Returns True if the input words differ by only a single character;
     returns False otherwise.
@@ -52,3 +104,13 @@ def _adjacent(word1, word2):
     >>> _adjacent('stone','money')
     False
     '''
+
+    if len(word1) != len(word2):
+        return False
+    differences = 0
+    for i in range(len(word1)):
+        if word1[i] != word2[i]:
+            differences += 1
+            if differences > 1:
+                return False
+    return differences == 1
