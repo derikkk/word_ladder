@@ -1,7 +1,7 @@
 #!/bin/python3
 
 
-def get_text(filename):  # used to get access to dictionary of 5 letter words
+def get_text(filename):  # access dictionary
     f = open(filename, encoding='latin1')
     text = f.read()
     f.close()
